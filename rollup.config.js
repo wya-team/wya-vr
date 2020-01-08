@@ -44,7 +44,7 @@ const mainConfig = {
 	input: 'src/index.js',
 	// 输出
 	output: {
-		file: `dist/vr.min.js`,
+		file: `${ENV_IS_DEV ? 'build' : 'dist'}/vr.min.js`,
 		format: 'cjs',
 		sourcemap: ENV_IS_DEV ? undefined : `inline`,
 		globals: {

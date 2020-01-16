@@ -180,6 +180,7 @@ export class History {
 				if (this.pending !== route) {
 					return abort();
 				}
+				
 				this.pending = null;
 				onComplete(route); // afterEach 导航守卫钩子
 				// 执行 beforeRouteEnter 导航守卫钩子，beforeRouteEnter 钩子不能访问 this 对象，因为钩子在导航确认前被调用，需要渲染的组件还没被创建。

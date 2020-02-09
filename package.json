@@ -100,7 +100,8 @@
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.2",
     "webpack-merge": "^4.2.2",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^1.7.2",
+    "path-to-regexp": "^1.7.0",
   },
   "peerDependencies": {
     "@babel/runtime": ">=7.0.0",

@@ -1,3 +1,4 @@
+import { stringifyQuery } from './query';
 
 export function getFullPath ({ path, query = {}, hash = '' }) {
     return path + stringifyQuery(query) + hash

@@ -125,6 +125,7 @@ export class History {
 			activated // 需要渲染的组件路由信息数组
 		} = resolveQueue(this.current.matched, route.matched);
 		
+		// 导航守卫数组
 		const queue = [].concat(
 			extractLeaveGuards(deactivated), // 执行失活组件的beforeRouteLeave钩子
 			this.router.beforeHooks, // 执行全局的beforeEach钩子
@@ -196,6 +197,16 @@ export class History {
 	}
 
 	resolveQueue(current, next) {
-
+		const max = Math.max(current.length, next.length);
+		for (let i = 0; i < max; i++) {
+			if (current[i] !== next[i]) {
+				break;
+			}
+		}
+		return {
+			updated: next.slice(0, i),
+			activated: next.slice(i),
+			deactivated: current.slice(i)
+		}
 	}
 }

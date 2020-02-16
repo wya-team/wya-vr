@@ -1,3 +1,4 @@
+import { stringifyQuery } from './query';
 
 const trailingSlashRE = /\/?$/;
 
@@ -23,14 +24,51 @@ function isObjectEqual(a = {}, b = {}) {
 	});
 }
 
-export function createRoute() {
-	const route = {};
+export function createRoute(record, location, redirectedFrom, router) {
+	const stringifyQuery = router && router.options.stringifyQuery;
+	const { name, path, hash, query, params } = location;
+
+	query = clone(query);
+	const route = {
+		name: name || (record && record.name),
+		meta: (record && record.meta) || {},
+		path: path || '/',
+		hash: hash || '',
+		query: query || {},
+		params: params || {},
+		fullPath: getFullPath(location, stringifyQuery),
+		matched: record ? formatMatch(record) : []
+	};
+
+	if (redirectedFrom) {
+		route.redirectedFrom = getFullPath(redirectedFrom, stringifyQuery);
+	}
 	return Object.freeze(route);
 }
+
 
 export const START = createRoute(null, {
 	path: '/'
 });
+
+function getFullPath({ path, query = {}, hash = '' }, _stringifyQuery) {
+	const stringify = _stringifyQuery || stringifyQuery;
+	return (path || '/') + stringify(query) + hash;
+}
+
+function clone(value) {
+	if (Array.isArray(value)) {
+		return value.map(clone);
+	} else if (value && typeof value === 'object') {
+		const res = {};
+		for (const key in value) {
+			res[key] = clone(value[key]);
+		}
+		return res;
+	} else {
+		return value;
+	}
+}
 
 export function isSameRoute(a, b) {
 	if (!b) {

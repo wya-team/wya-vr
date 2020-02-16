@@ -2,7 +2,7 @@ import { History } from './base';
 import { cleanPath } from '../util/path';
 import { START } from '../util/route';
 import { setupScroll, handleScroll } from '../util/scroll';
-import { pushState, replaceState, supportsPushState } from '../util/push-state';
+import { pushState, supportsPushState } from '../util/push-state';
 
 export class HTML5History extends History {
 	constructor(router, base) {
@@ -34,28 +34,27 @@ export class HTML5History extends History {
 		window.history.go(n);
 	}
 
-	push(location, onComplete, onAbort) {
+	operateState(location, onComplete, onAbort, isReplace) {
 		const { current: fromRoute } = this;
 		this.transitionTo(location, route => {
-			pushState(cleanPath(this.base + route.fullPath));
+			pushState(cleanPath(this.base + route.fullPath), isReplace);
 			handleScroll(this.router, route, fromRoute, false);
 			onComplete && onComplete(route);
 		}, onAbort);
+	}
+
+	push(location, onComplete, onAbort) {
+		this.operateState(location, onComplete, onAbort, false);
 	}
 
 	replace(location, onComplete, onAbort) {
-		const { current: fromRoute } = this;
-		this.transitionTo(location, route => {
-			replaceState(cleanPath(this.base + route.fullPath));
-			handleScroll(this.router, route, fromRoute, false);
-			onComplete && onComplete(route);
-		}, onAbort);
+		this.operateState(location, onComplete, onAbort, true);
 	}
 
-	ensureURL(push) {
+	ensureURL(isPush) {
 		if (getLocation(this.base) !== this.current.fullPath) {
 			const current = cleanPath(this.base + this.current.fullPath);
-			push ? pushState(current) : replaceState(current);
+			pushState(current, isPush);
 		}
 	}
 

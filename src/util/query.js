@@ -1,3 +1,11 @@
+
+const encodeReserveRE = /[!'()*]/g
+const encodeReserveReplacer = c => '%' + c.charCodeAt(0).toString(16)
+const commaRE = /%2C/g
+const encode = str => encodeURIComponent(str)
+    .replace(encodeReserveRE, encodeReserveReplacer)
+    .replace(commaRE, ',');
+
 export function stringifyQuery (obj) {
     const res = obj ? Object.keys(obj).sort().map(key => {
         const val = obj[key];

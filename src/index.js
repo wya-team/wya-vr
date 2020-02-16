@@ -12,7 +12,7 @@ export default class Router {
 		this.options = options;
 		this.beforeHooks = [];
 		this.afterHooks = [];
-		this.matcher = createMatcher(options.routes || []);
+		this.matcher = createMatcher(options.routes || [], this);
 
 		let mode = options.mode || 'html5';
 

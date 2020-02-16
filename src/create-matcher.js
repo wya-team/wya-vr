@@ -3,7 +3,7 @@ import { createRouteMap } from './create-route-map';
 import { resolvePath, getFullPath } from './util/path';
 import { fillParams, regexpCompileCache } from './util/params';
 
-export function createMatcher(routes) {
+export function createMatcher(routes, router) {
     const { pathMap, nameMap } = createRouteMap(routes);
 
     function match(location, currentLocation) {

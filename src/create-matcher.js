@@ -2,6 +2,7 @@ import Regexp from 'path-to-regexp';
 import { createRouteMap } from './create-route-map';
 import { resolvePath, getFullPath } from './util/path';
 import { fillParams, regexpCompileCache } from './util/params';
+import { normalizeLocation } from './util/location';
 
 export function createMatcher(routes, router) {
     const { pathMap, nameMap } = createRouteMap(routes);

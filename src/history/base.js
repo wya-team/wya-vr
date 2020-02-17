@@ -1,7 +1,7 @@
 import { _Vue } from '../install';
 import { START, isSameRoute } from '../util/route';
 import { isError, isExtendedError, warn } from '../util/warn';
-import { resolveAsyncComponents } from '../util/resolve-components';
+import { resolveAsyncComponents, flatMapComponents } from '../util/resolve-components';
 
 function extractGuard(def, key) {
 	if (typeof def !== 'function') {
@@ -10,12 +10,27 @@ function extractGuard(def, key) {
 	return def.options[key];
 }
 
-function extractGuards() {
-
+// extractGuards 从 RouteRecord 数组中提取各个阶段的守卫。
+function extractGuards(records, name, bind, reverse) {
+	//  flatMapComponents 方法去从 records 中获取所有的导航。
+	const guards = flatMapComponents(records, (def, instance, match, key) => {
+		const guard = extractGuard(def, name);
+		if (guard) {
+			  return Array.isArray(guard) ? 
+			  	guard.map(guard => bind(guard, instance, match, key))
+				: bind(guard, instance, match, key);
+		}
+	});
+	return flatten(reverse ? guards.reverse() : guards);
 }
 
-function bindGuard() {
-
+// 把组件的实例 instance 作为函数执行的上下文绑定到 guard 上。
+function bindGuard(guard, instance) {
+	if (instance) {
+		return function boundRouteGuard () {
+			return guard.apply(instance, arguments);
+		}
+	}
 }
 
 function extractEnterGuards() {

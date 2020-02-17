@@ -10,6 +10,7 @@ export default class Router {
 	constructor(options = {}) {
 		this.app = null;
 		this.options = options;
+		this.resolveHooks = [];
 		this.beforeHooks = [];
 		this.afterHooks = [];
 		this.matcher = createMatcher(options.routes || [], this);
@@ -53,20 +54,44 @@ export default class Router {
 		});
 	}
 
+	beforeResolve(fn) {
+		return registerHook(this.resolveHooks, fn)
+	}
+
 	beforeEach(fn) {
-		this.beforeHooks.push(fn);
+		return registerHook(this.beforeHooks, fn);
 	}
 
 	afterEach(fn) {
-		this.afterHooks.push(fn);
+		return registerHook(this.afterHooks, fn);
 	}
 
-	push(location) {
-		this.history.push(location);
+	onReady(cb, errorCb) {
+		this.history.onReady(cb, errorCb);
 	}
 
-	replace(location) {
-		this.history.replace(location);
+	onError(errorCb) {
+		this.history.onError(errorCb);
+	}
+
+	push(location, onComplete, onAbort) {
+		if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
+			return new Promise((resolve, reject) => {
+			  	this.history.push(location, resolve, reject);
+			});
+		} else {
+			this.history.push(location, onComplete, onAbort);
+		}
+	}
+
+	replace(location, onComplete, onAbort) {
+		if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
+			return new Promise((resolve, reject) => {
+			  this.history.replace(location, resolve, reject)
+			});
+		} else {
+			this.history.replace(location, onComplete, onAbort);
+		}
 	}
 
 	go(n) {
@@ -81,6 +106,15 @@ export default class Router {
 		this.go(1);
 	}
 
+}
+
+function registerHook(list, fn) {
+	list.push(fn);
+	return () => {
+		if (list.includes(fn)) {
+			list.splece(i, 1);
+		}
+	};
 }
 
 Router.install = install;

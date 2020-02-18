@@ -8,12 +8,13 @@ import { AbstractHistory } from './history/abstract';
 
 export default class Router {
 	constructor(options = {}) {
-		this.app = null;
-		this.options = options;
-		this.resolveHooks = [];
-		this.beforeHooks = [];
-		this.afterHooks = [];
-		this.matcher = createMatcher(options.routes || [], this);
+		this.app = null; // 当前vm实例
+		this.apps = []; // vm数组
+		this.options = options; // 配置项
+		this.resolveHooks = []; // 钩子函数执行时的导航守卫函数数组
+		this.beforeHooks = []; // 钩子函数执行前的导航守卫函数数组
+		this.afterHooks = []; // 钩子函数执行后的导航钩子函数数组
+		this.matcher = createMatcher(options.routes || [], this); // 路径匹配器
 
 		let mode = options.mode || 'html5';
 
@@ -41,6 +42,21 @@ export default class Router {
 			install.installed,
 			`router not installed`
 		);
+		this.apps.push(app);
+		
+		// vm销毁，移除vm，避免内存溢出
+		app.$once('hook:destoryed', () => {
+			const index = this.apps.indexOf(app);
+			if (index > -1) {
+				this.apps.splice(index, 1);
+			}
+			if (this.app === app) {
+				this.app = this.apps[0] || null;
+			}
+		});
+
+		if (this.app) return;
+
 		this.app = app;
 		const history = this.history;
 

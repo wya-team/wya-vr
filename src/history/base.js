@@ -1,5 +1,6 @@
 import { _Vue } from '../install';
 import { START, isSameRoute } from '../util/route';
+import { runQueue } from '../util/async';
 import { isError, isExtendedError, warn } from '../util/warn';
 import { resolveAsyncComponents, flatMapComponents } from '../util/resolve-components';
 
@@ -211,13 +212,17 @@ export class History {
 
 	}
 
+	// current = [{ path: '/foo', ... }]
+	// next = [{ path: '/foo', ... }, { path: '/foo/child/:id' }]
 	resolveQueue(current, next) {
 		const max = Math.max(current.length, next.length);
 		for (let i = 0; i < max; i++) {
+			// 找到cuurent不等于next的索引i，也就是匹配到的child
 			if (current[i] !== next[i]) {
 				break;
 			}
 		}
+		// 当 /foo/child/:id 到 /foo 时，那么 deactivated 则是 [{ path: '/foo/child/:id', ... }] 了
 		return {
 			updated: next.slice(0, i),
 			activated: next.slice(i),

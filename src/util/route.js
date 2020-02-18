@@ -25,6 +25,7 @@ function isObjectEqual(a = {}, b = {}) {
 }
 
 export function createRoute(record, location, redirectedFrom, router) {
+	// 字符串化查询参数
 	const stringifyQuery = router && router.options.stringifyQuery;
 	const { name, path, hash, query, params } = location;
 

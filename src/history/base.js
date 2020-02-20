@@ -2,7 +2,8 @@ import { _Vue } from '../install';
 import { START, isSameRoute } from '../util/route';
 import { runQueue } from '../util/async';
 import { isError, isExtendedError, warn } from '../util/warn';
-import { resolveAsyncComponents, flatMapComponents } from '../util/resolve-components';
+import { flatten, resolveAsyncComponents, flatMapComponents } from '../util/resolve-components';
+import { func } from 'assert-plus';
 
 function extractGuard(def, key) {
 	if (typeof def !== 'function') {
@@ -11,7 +12,11 @@ function extractGuard(def, key) {
 	return def.options[key];
 }
 
-// extractGuards 从 RouteRecord 数组中提取各个阶段的守卫。
+// 从 RouteRecord 数组中提取各个阶段的守卫。
+// records：失活组件 record
+// name：导航守卫名称
+// bind：绑定组件实例到上下文函数
+// reverse：是否需要反转组件数组（反转是由于激活时从父到子，失活时应该从子到父）
 function extractGuards(records, name, bind, reverse) {
 	//  flatMapComponents 方法去从 records 中获取所有的导航。
 	const guards = flatMapComponents(records, (def, instance, match, key) => {
@@ -34,16 +39,46 @@ function bindGuard(guard, instance) {
 	}
 }
 
-function extractEnterGuards() {
+// 轮循，一直去尝试获取组件实例，一旦获得，则执行callback方法，参数是对应组件的实例。
+function poll(cb, instances, key, isValid) {
+	if (instances[key] && !instances[key]._isBeingDestroyed) {
+		cb(instances[key]);
+	} else if (isValid()) {
+		setTimeout(() => {
+		  	poll(cb, instances, key, isValid);
+		}, 16);
+	}
+}
 
+function bindEnterGuard(gurad, match, key, cbs, isValid) {
+	return function routeEnterGuard(to, from, next) {
+		return gurad(to, from, cb => {
+			if (typeof cb === 'function') {
+				cbs.push(() => {
+					poll(cb, match.instances, key, isValid)
+				});
+			}
+			next(cb);
+		});
+	};
+}
+
+function extractEnterGuards(activated, cbs, isValid) {
+	return extractGuards(
+		activated,
+		'beforeRouteEnter',
+		(guard, _, match, key) => {
+		  	return bindEnterGuard(guard, match, key, cbs, isValid);
+		}
+	);
 }
 
 function extractLeaveGuards(deactivated) {
 	return extractGuards(deactivated, 'beforeRouteLeave', bindGuard, true);
 }
 
-function extractUpdateHooks() {
-
+function extractUpdateHooks(updated) {
+	return extractGuards(updated, 'beforeRouteUpdate', bindGuard);
 }
 
 export class History {

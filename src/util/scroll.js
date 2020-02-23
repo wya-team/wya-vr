@@ -1,7 +1,6 @@
 import { assert } from './warn'
 import { getStateKey, setStateKey } from './state-key'
 
-
 const positionStore = Object.create(null);
 
 export function setupScroll() {
@@ -60,9 +59,70 @@ export function saveScrollPosition() {
 }
 
 function getScrollPosition() {
-    
+    const key = getStateKey();
+
+    if (key) {
+        return positionStore[key];
+    }
 }
 
-function scrollToPosition() {
+function isNumber(val) {
+    return typeof val === 'number';
+}
 
+function normalizeOffset(obj) {
+    return {
+        x: isNumber(obj.x) ? obj.x : 0,
+        y: isNumber(obj.y) ? obj.y : 0
+    };
+}
+
+function getElementPosition(el, offset) {
+    const docEl = document.documentElement;
+    const docRect = docEl.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    return {
+        x: elRect.left - docRect.left - offset.x,
+        y: elRect.top - docRect.top - offset.y
+    };
+}
+
+function normalizePosition(obj) {
+    return {
+        x: isNumber(obj.x) ? obj.x : window.pageXOffset,
+        y: isNumber(obj.y) ? obj.y : window.pageYOffset
+    };
+}
+
+function isValidPosition(obj) {
+    return isNumber(obj.x) || isNumber(obj.y);
+}
+
+function scrollToPosition(shouldScroll, position) {
+    const isObject = typeof shouldScroll === 'object';
+
+    if (isObject && typeof shouldScroll.selector === 'string') {
+        // 如果选择器包含更复杂的查询，比如#main[data-attr]， getElementById仍然会失败。
+        // 但是与此同时，选择一个带有id和额外选择器的元素并没有多大意义
+        const hashStartsWithNumberRE = /^#\d/;
+        const el = hashStartsWithNumberRE.test(shouldScroll.selector) 
+            ? document.getElementById(shouldScroll.selector.slice(1))
+            : document.querySelector(shouldScroll.selector);
+
+        if (el) {
+            let offset = shouldScroll.offset && typeof shouldScroll.offset === 'object'
+                ? shouldScroll.offset 
+                : {};
+            offset = normalizeOffset(offset);
+            position = getElementPosition(el, offset);
+        } else if (isValidPosition(shouldScroll)) {
+            position = normalizePosition(shouldScroll);
+        }
+    } else if (isObject && isValidPosition(shouldScroll)) {
+        position = normalizePosition(shouldScroll);
+    }
+
+    if (Position) {
+        window.scrollTo(position.x, position.y);
+    }
 }

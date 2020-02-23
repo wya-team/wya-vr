@@ -3,7 +3,7 @@ import { START, isSameRoute } from '../util/route';
 import { runQueue } from '../util/async';
 import { isError, isExtendedError, warn } from '../util/warn';
 import { flatten, resolveAsyncComponents, flatMapComponents } from '../util/resolve-components';
-import { func } from 'assert-plus';
+import { NavigationDuplicated } from './error';
 
 function extractGuard(def, key) {
 	if (typeof def !== 'function') {
@@ -167,7 +167,7 @@ export class History {
 		// 如果是相同路由则不跳转
 		if (isSameRoute(route, current) && route.matched.length === current.matched.length) {
 			this.ensureURL();
-			return abort();
+			return abort(new NavigationDuplicated(route));
 		}
 
 		const {

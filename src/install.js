@@ -16,10 +16,10 @@ export function install(Vue) {
 	// 取父节点的 data 中的 registerRouteInstance 方法进行注册，callVal不为空是注册，为空是注销
 	const registerInstance = (vm, callVal) => {
 		let i = vm.$options._parentVnode;
-		if (isDef(i) && isDef(i = i.data) && isDef(i = i.registerRouteInstance)) {
-			i(vm, callVal);
+		if (isDef(i) && isDef(i.data) && isDef(i.data.registerRouteInstance)) {
+			i.data.registerRouteInstance(vm, callVal);
 		}
-	}
+	};
 
 	Vue.mixin({
 		beforeCreate() {
@@ -36,7 +36,7 @@ export function install(Vue) {
 			// 注册route实例的钩子
 			registerInstance(this, this);
 		},
-		destroyed () {
+		destroyed() {
 		  registerInstance(this);
 		}
 	});
@@ -58,5 +58,7 @@ export function install(Vue) {
 
 	// 挂载 beforeRouteEnter、beforeRouteLeave、beforeRouteUpdate 方法到 Vue 上
 	const strats = Vue.config.optionMergeStrategies;
-	strats.beforeRouteEnter = strats.beforeRouteLeave = strats.beforeRouteUpdate = strats.created;
+	strats.beforeRouteUpdate = strats.created;
+	strats.beforeRouteLeave = strats.beforeRouteUpdate;
+	strats.beforeRouteEnter = strats.beforeRouteLeave;
 }

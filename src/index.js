@@ -71,7 +71,7 @@ export default class Router {
 	}
 
 	beforeResolve(fn) {
-		return registerHook(this.resolveHooks, fn)
+		return registerHook(this.resolveHooks, fn);
 	}
 
 	beforeEach(fn) {
@@ -93,7 +93,7 @@ export default class Router {
 	push(location, onComplete, onAbort) {
 		if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
 			return new Promise((resolve, reject) => {
-			  	this.history.push(location, resolve, reject);
+				this.history.push(location, resolve, reject);
 			});
 		} else {
 			this.history.push(location, onComplete, onAbort);
@@ -103,7 +103,7 @@ export default class Router {
 	replace(location, onComplete, onAbort) {
 		if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
 			return new Promise((resolve, reject) => {
-			  this.history.replace(location, resolve, reject)
+			  this.history.replace(location, resolve, reject);
 			});
 		} else {
 			this.history.replace(location, onComplete, onAbort);
@@ -124,17 +124,17 @@ export default class Router {
 
 }
 
-function registerHook(list, fn) {
-	list.push(fn);
-	return () => {
-		if (list.includes(fn)) {
-			list.splece(i, 1);
-		}
-	};
-}
-
 Router.install = install;
 
 if (inBrowser && window.app) {
 	window.app.use(Router);
+}
+
+function registerHook(list, fn) {
+	list.push(fn);
+	return () => {
+		if (list.includes(fn)) {
+			list.splice(i, 1);
+		}
+	};
 }

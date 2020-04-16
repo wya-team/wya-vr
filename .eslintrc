@@ -175,5 +175,6 @@
 			}
 		],
 		"jsx-quotes": 1,
+		"no-use-before-define": ["error", { "functions": false, "classes": true }]
 	}
 }

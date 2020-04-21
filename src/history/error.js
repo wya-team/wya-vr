@@ -4,6 +4,6 @@ export class NavigationDuplicated extends Error {
 		this.name = 'NavigationDuplicated';
 		this.message = `Navigating to current location ("${
 			normalizedLocation.fullPath
-		  }") is not allowed`;
+		}") is not allowed`;
 	}
 }

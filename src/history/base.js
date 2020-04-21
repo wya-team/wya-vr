@@ -22,8 +22,8 @@ function extractGuards(records, name, bind, reverse) {
 	const guards = flatMapComponents(records, (def, instance, match, key) => {
 		const guard = extractGuard(def, name);
 		if (guard) {
-			  return Array.isArray(guard) ? 
-			  	guard.map(guard => bind(guard, instance, match, key))
+			return Array.isArray(guard) 
+				? guard.map(guard => bind(guard, instance, match, key))
 				: bind(guard, instance, match, key);
 		}
 	});
@@ -33,9 +33,9 @@ function extractGuards(records, name, bind, reverse) {
 // 把组件的实例 instance 作为函数执行的上下文绑定到 guard 上。
 function bindGuard(guard, instance) {
 	if (instance) {
-		return function boundRouteGuard () {
+		return function boundRouteGuard() {
 			return guard.apply(instance, arguments);
-		}
+		};
 	}
 }
 
@@ -45,7 +45,7 @@ function poll(cb, instances, key, isValid) {
 		cb(instances[key]);
 	} else if (isValid()) {
 		setTimeout(() => {
-		  	poll(cb, instances, key, isValid);
+			poll(cb, instances, key, isValid);
 		}, 16);
 	}
 }
@@ -55,7 +55,7 @@ function bindEnterGuard(gurad, match, key, cbs, isValid) {
 		return gurad(to, from, cb => {
 			if (typeof cb === 'function') {
 				cbs.push(() => {
-					poll(cb, match.instances, key, isValid)
+					poll(cb, match.instances, key, isValid);
 				});
 			}
 			next(cb);
@@ -68,7 +68,7 @@ function extractEnterGuards(activated, cbs, isValid) {
 		activated,
 		'beforeRouteEnter',
 		(guard, _, match, key) => {
-		  	return bindEnterGuard(guard, match, key, cbs, isValid);
+			return bindEnterGuard(guard, match, key, cbs, isValid);
 		}
 	);
 }
@@ -262,6 +262,6 @@ export class History {
 			updated: next.slice(0, i),
 			activated: next.slice(i),
 			deactivated: current.slice(i)
-		}
+		};
 	}
 }

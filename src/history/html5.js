@@ -26,7 +26,7 @@ export class HTML5History extends History {
 				if (supportsSrcoll) {
 					handleScroll(router, route, current, true);
 				}
-			})
+			});
 		});
 	}
 

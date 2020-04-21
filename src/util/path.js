@@ -1,9 +1,9 @@
 import { stringifyQuery } from './query';
 
-export function getFullPath ({ path, query = {}, hash = '' }) {
-    return path + stringifyQuery(query) + hash
+export function getFullPath({ path, query = {}, hash = '' }) {
+	return path + stringifyQuery(query) + hash;
 }
 
 export function cleanPath(path) {
-    return path.replace(/\/\//g, '/');
+	return path.replace(/\/\//g, '/');
 }

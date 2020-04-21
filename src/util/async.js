@@ -5,7 +5,7 @@ export function runQueue(queue, fn, cb) {
 		if (index >= queue.length) {
 			cb();
 		} else if (queue[index]) {
-			fn(queue[index], () =>  {
+			fn(queue[index], () => {
 				step(index + 1);
 			});
 		} else {

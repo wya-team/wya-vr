@@ -27,16 +27,23 @@ function isObjectEqual(a = {}, b = {}) {
 export function createRoute(record, location, redirectedFrom, router) {
 	// 字符串化查询参数
 	const stringifyQuery = router && router.options.stringifyQuery;
-	const { name, path, hash, query, params } = location;
 
-	query = clone(query);
+	let query = location.query || {};
+
+	try {
+		query = clone(query);
+	} catch (error) {
+		console.log(error);
+	}
+
+
 	const route = {
-		name: name || (record && record.name),
+		name: location.name || name || (record && record.name),
 		meta: (record && record.meta) || {},
-		path: path || '/',
-		hash: hash || '',
-		query: query || {},
-		params: params || {},
+		path: location.path || '/',
+		hash: location.hash || '',
+		query,
+		params: location.params || {},
 		fullPath: getFullPath(location, stringifyQuery),
 		matched: record ? formatMatch(record) : []
 	};

@@ -13,6 +13,6 @@ export default {
 			if ((val && current !== vm) || (!val && current === vm)) {
 				matched.instances[name] = val;
 			}
-		}
+		};
 	}
 };
